@@ -1,0 +1,30 @@
+{
+  "name": "safe-subs",
+  "version": "1.0.0",
+  "description": "A monorepo for subaccount module and app",
+  "main": "dist/index.js",
+  "workspaces": [
+    "packages/*",
+    "webauthn"
+  ],
+  "scripts": {
+    "fmt:global": "prettier --write .",
+    "fmt:global-check": "prettier --check .",
+    "postinstall": "npm rebuild --skip-scripts @safe-global/safe-4337-local-bundler"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koshikraj/safe-passkey-validator.git"
+  },
+  "author": "koshikraj",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/koshikraj/safe-passkey-validator/issues"
+  },
+  "homepage": "https://github.com/koshikraj/safe-passkey-validator/#readme",
+  "keywords": [
+    "Ethereum",
+    "7579",
+    "Safe"
+  ]
+}
