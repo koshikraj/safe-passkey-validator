@@ -1,7 +1,7 @@
 {
-  "short_name": "SafeSub App",
-  "name": "SafeSub App",
-  "description": "Sub Account for Safe Accounts",
+  "short_name": "Safe PassKey App",
+  "name": "Safe PassKey App",
+  "description": "PassKey for Safe Accounts",
   "iconPath": "logo192.png",
   "icons": [
     {
