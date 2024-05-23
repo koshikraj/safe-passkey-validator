@@ -2,8 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-import 'hardhat/console.sol';
-
 import {IValidator, IHook} from "kernel/interfaces/IERC7579Modules.sol";
 import {MODULE_TYPE_VALIDATOR, MODULE_TYPE_HOOK} from "kernel/types/Constants.sol";
 import {PackedUserOperation} from "kernel/interfaces/PackedUserOperation.sol";
@@ -111,8 +109,6 @@ contract WebAuthnValidator is IValidator {
      */
     function _verifySignature(address account, bytes32 hash, bytes calldata signature) private view returns (uint256) {
         // decode the signature
-
-        console.log(account, 'lol');
         (
             bytes memory authenticatorData,
             string memory clientDataJSON,
@@ -122,12 +118,8 @@ contract WebAuthnValidator is IValidator {
             bool usePrecompiled
         ) = abi.decode(signature, (bytes, string, uint256, uint256, uint256, bool));
 
-        console.log(r, 'r');
-
         // get the public key from storage
         WebAuthnValidatorData memory webAuthnData = webAuthnValidatorStorage[account];
-
-        console.log(webAuthnData.pubKeyX, 'keyx');
 
         // verify the signature using the signature and the public key
         bool isValid = WebAuthn.verifySignature(
@@ -145,7 +137,7 @@ contract WebAuthnValidator is IValidator {
         );
 
         // return the validation data
-        if (true) {
+        if (isValid) {
             return SIG_VALIDATION_SUCCESS_UINT;
         }
 
