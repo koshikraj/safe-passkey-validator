@@ -17,6 +17,8 @@ import {
   TextInput,
   Stepper,
   rem,
+  Checkbox,
+  Stack,
 } from '@mantine/core';
 import classes from './Home.module.css';
 import ETHIndia from '../../assets/images/ethindia.svg';
@@ -25,7 +27,7 @@ import Safe from '../../assets/images/safe.svg';
 import { NetworkUtil } from '../../logic/networks';
 import { useDisclosure } from '@mantine/hooks';
 import { DateTimePicker } from '@mantine/dates';
-import {  createSessionKey } from '../../logic/module';
+import {  createSessionKey, getWebAuthn } from '../../logic/module';
 import { ZeroAddress } from 'ethers';
 
 import Confetti from 'react-confetti';
@@ -74,9 +76,7 @@ function HomePage() {
   const [chainId, setChainId] = useState(5);
 
   const [sessionCreated, setSessionCreated] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [sessionKey, setSessionKey] = useState({address: '', privateKey: ''});
-  const [signerAccount, setSignerAccount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [safeError, setSafeError] = useState(false);
 
@@ -153,6 +153,8 @@ function HomePage() {
 
       try {
         const safeInfo = await getSafeInfo();
+        const passkeyEnabled = (await getWebAuthn(chainId.toString(), safeInfo?.safeAddress))[0]!=0n
+        setActive(passkeyEnabled ? 2 : 0);
         setSafeAccount(safeInfo?.safeAddress);
         if(value == ZeroAddress) {
         setBalance(parseFloat(formatEther(await provider.getBalance(safeInfo?.safeAddress))).toFixed(4))
@@ -202,7 +204,7 @@ function HomePage() {
 
         <div className={classes.inputContainer}>
 
-        <Stepper size="sm" active={active} onStepClick={setActive} color='green' >
+        <Stepper size="sm" active={active} color='green' >
         <Stepper.Step label="Add PassKey" description="Signer for your account" icon={<IconUserCheck style={{ width: rem(18), height: rem(18) }} />}>
 
               <div
@@ -216,7 +218,7 @@ function HomePage() {
               >
               
             <p className={classes.topHeading}>
-              Add PassKey auth to your Safe <Anchor target='_blank' href={`/#/account?account=${safeAccount}`}>here </Anchor> 
+              Add <b>PassKey</b> auth to your Safe <Anchor target='_blank' href={`/#/account?account=${safeAccount}`}><b>here </b> </Anchor>  and then click Next
             </p>
 
 
@@ -229,8 +231,9 @@ function HomePage() {
               size="lg" 
               radius="md"   
               fullWidth
-              color="green"
-              className={classes.btn}
+              variant='default'
+              color="grey"
+              // className={classes.btn}
               onClick={async () => {
 
 
@@ -254,6 +257,41 @@ function HomePage() {
         </Stepper.Step>
         <Stepper.Step label="Add Module" description="Enable the module">
         <div className={classes.inputContainer}>
+
+        <p >
+              List of things that will be performed on Safe to enable PassKey ✨
+            </p>
+            <Paper radius="md" withBorder className={classes.card} mt={20}>
+
+                <Stack>
+          <Checkbox
+              checked
+              color="green"
+              size="sm"
+              label="Safe7579 adapter as module"
+          />
+          <Checkbox
+              checked
+              color="green"
+              size="sm"
+              label="Safe7579 adapter as fallback handler"
+          />
+    
+          <Checkbox
+              checked
+              color="green"
+              size="sm"
+              label="Initiate the Safe7579 module"
+          />
+          <Checkbox
+              checked
+              color="green"
+              size="sm"
+              label="ZeroDev WebAuthn validator"
+          />
+                  </Stack>
+
+          </Paper>
             
 
             </div> 
@@ -271,28 +309,26 @@ function HomePage() {
             </Button>
             <br/>
 
-            <p className={classes.subHeading}>
-              Just execute this transaction to enable passkey for your Safe ✨
-            </p>
+
         </Stepper.Step>
         <Stepper.Step label="All Set" description="Confirmation">
         <div>
 
-              <h1 className={classes.heading}>PassKey Account is Ready!</h1>
+              <h1 className={classes.heading} style={{fontSize: 30}}>PassKey Account is Ready!</h1>
 
               <p className={classes.subheading} style={{ textAlign: 'center' }}>
                 
-               This passkey account is like a magic wand. Check out the magic of passkey <Anchor onClick={() => navigate(RoutePath.account)}>here </Anchor> ❤️ ❤️
+               This passkey account is like a magic wand. Check out the magic of passkey <Anchor target='_blank' href={`/#/account?account=${safeAccount}`} >here </Anchor> ❤️ ❤️
               </p>
 
               <div className={classes.actions}>
             
             <Button size="lg" radius="md"
-              onClick={() => setActive(0)}
+              onClick={() => window.open(`/#/account?account=${safeAccount}`)}
              style={{ width: '180px' }}        
                 color={ dark ? "#49494f" : "#c3c3c3" } 
                 variant={ "filled" } 
-               >Create New</Button>
+               >Use Passkey</Button>
         
           </div>
 

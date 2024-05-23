@@ -378,6 +378,7 @@ export const AccountPage = () => {
         setAuthenticating(false); 
         } 
         catch(e) {
+          console.log(e)
           setAuthenticating(false);
         }
         }}

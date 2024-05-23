@@ -103,6 +103,7 @@
   margin-bottom: 0;
 }
 
+
 .actions{
   margin-top: 20px;
   display: flex;
@@ -164,6 +165,13 @@
   transition: 0.5s;
   background-size: 200% auto;
   color: white;
+}
+
+.card {
+  position: relative;
+  overflow: visible;
+  padding: var(--mantine-spacing-xl);
+  /* padding-top: calc(var(--mantine-spacing-xl) * 1.5 + rem(20px)); */
 }
 
 .btn:hover {

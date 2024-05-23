@@ -1,36 +1,31 @@
-import { Contract, ZeroAddress, parseEther, parseUnits, getBytes, JsonRpcProvider, toBeHex, Interface } from "ethers";
-import { ethers, utils } from 'ethersv5';
+import { Contract, ZeroAddress, parseEther} from "ethers";
 import { BaseTransaction } from '@safe-global/safe-apps-sdk';
 import { getSafeInfo, isConnectedToSafe, submitTxs } from "./safeapp";
-import { isModuleEnabled, buildEnableModule, isGuardEnabled, buildEnableGuard, buildUpdateFallbackHandler } from "./safe";
+import { isModuleEnabled, buildEnableModule, buildUpdateFallbackHandler } from "./safe";
 import { getJsonRpcProvider, getProvider } from "./web3";
 import Safe7579 from "./Safe7579.json"
 import SpendLimitSession from "./SpendLimitSession.json"
 import WebAuthnValidator from "./WebAuthnValidator.json"
 import EntryPoint from "./EntryPoint.json"
-import { getTokenDecimals, publicClient } from "./utils";
+import {  publicClient } from "./utils";
 import {  buildUnsignedUserOpTransaction } from "@/utils/userOp";
-import { createClient, http, Chain, Hex, pad, custom, createWalletClient, createPublicClient } from "viem";
+import { createClient, http, Chain, Hex, pad} from "viem";
 import { sepolia } from 'viem/chains'
-import { bundlerActions, ENTRYPOINT_ADDRESS_V07, getPackedUserOperation, UserOperation, getAccountNonce } from 'permissionless'
+import { bundlerActions, ENTRYPOINT_ADDRESS_V07, UserOperation, getAccountNonce } from 'permissionless'
 import {  createPimlicoPaymasterClient } from "permissionless/clients/pimlico";
-import { pimlicoBundlerActions, pimlicoPaymasterActions } from 'permissionless/actions/pimlico'
-import { privateKeyToAccount } from "viem/accounts";
-import { EIP1193Provider } from "@privy-io/react-auth";
-import { getPasskeyValidator } from "@zerodev/passkey-validator";
+import { pimlicoBundlerActions } from 'permissionless/actions/pimlico'
 
 const safe7579Module = "0xbaCA6f74a5549368568f387FD989C279f940f1A5"
-const spendLimitModule = "0xD990393C670dCcE8b4d8F858FB98c9912dBFAa06"
+const webAuthnModule = "0x38dF40644BbBbA37682297C1Bf5950d8070E8E57"
 
 
 
 export const getWebAuthn = async (chainId: string, account: string): Promise<any> => {
 
-
     const bProvider = await getJsonRpcProvider(chainId)
 
     const webAuthnValidator = new Contract(
-        spendLimitModule,
+        webAuthnModule,
         WebAuthnValidator.abi,
         bProvider
     )
@@ -43,14 +38,8 @@ export const getWebAuthn = async (chainId: string, account: string): Promise<any
 }
 
 
-
-
-
 export const sendTransaction = async (chainId: string, recipient: string, amount: bigint, walletProvider: any, safeAccount: string): Promise<any> => {
 
-    const provider = await getProvider()
-    // Updating the provider RPC if it's from the Safe App.
-    // const chainId = (await provider.getNetwork()).chainId.toString()
     const bProvider = await getJsonRpcProvider(chainId)
 
 
@@ -61,7 +50,7 @@ export const sendTransaction = async (chainId: string, recipient: string, amount
     console.log(call)
 
 
-    const key = BigInt(pad(spendLimitModule as Hex, {
+    const key = BigInt(pad(webAuthnModule as Hex, {
         dir: "right",
         size: 24,
       }) || 0
@@ -228,7 +217,7 @@ const buildInstallValidator = async (enableData: string): Promise<BaseTransactio
     return {
         to: info.safeAddress,
         value: "0",
-        data: (await safeValidator.installModule.populateTransaction(1, spendLimitModule, enableData as Hex)).data
+        data: (await safeValidator.installModule.populateTransaction(1, webAuthnModule, enableData as Hex)).data
     }
 }
 
@@ -252,7 +241,7 @@ const buildInstallExecutor = async ( ): Promise<BaseTransaction> => {
     return {
         to: info.safeAddress,
         value: "0",
-        data: (await safeValidator.installModule.populateTransaction(2, spendLimitModule, '0x')).data
+        data: (await safeValidator.installModule.populateTransaction(2, webAuthnModule, '0x')).data
     }
 }
 
@@ -274,13 +263,13 @@ const buildAddSessionKey = async (sessionKey: string, token: string, amount: str
     const bProvider = await getJsonRpcProvider(chainId)
 
     const spendLimit = new Contract(
-        spendLimitModule,
+        webAuthnModule,
         SpendLimitSession.abi,
         bProvider
     )
 
     return {
-        to: spendLimitModule,
+        to: webAuthnModule,
         value: "0",
         data: (await spendLimit.addSessionKey.populateTransaction(sessionKey, token, sessionData)).data
     }
