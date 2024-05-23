@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { deployments, ethers } from 'hardhat'
 import { utils } from 'ethersv5';
-import { getTestSafe, getEntryPoint, getTestToken, getSafe7579, getMockValidator, getWebAuthnModule } from '../utils/setup'
+import { getTestSafe, getEntryPoint, getTestToken, getSafe7579, getWebAuthnModule } from '../utils/setup'
 import { logGas } from '../../src/utils/execution'
 import {
   buildUnsignedUserOpTransaction,
@@ -24,7 +24,6 @@ describe('WebAuthn - Basic tests', () => {
 
     entryPoint = entryPoint.connect(relayer)
     const webAuthnModule = await getWebAuthnModule()
-    const mockValidator = await getMockValidator()
     const safe7579 = await getSafe7579()
     const testToken = await getTestToken()
     const safe = await getTestSafe(user1, await safe7579.getAddress(), await safe7579.getAddress())
@@ -36,7 +35,6 @@ describe('WebAuthn - Basic tests', () => {
       safe,
       relayer,
       webAuthnModule,
-      mockValidator,
       safe7579,
       entryPoint,
     }
@@ -44,7 +42,7 @@ describe('WebAuthn - Basic tests', () => {
 
 
     it('should add the webauthn validator and execute ops with error', async () => {
-      const { user1, user2, mockValidator, safe, webAuthnModule, safe7579, entryPoint, relayer } = await setupTests()
+      const { user1, safe, webAuthnModule, safe7579, entryPoint, relayer } = await setupTests()
 
     await entryPoint.depositTo(await safe.getAddress(), { value: ethers.parseEther('1.0') })
 

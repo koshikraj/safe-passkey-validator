@@ -19,21 +19,13 @@ const deploy: DeployFunction = async ({ deployments, getNamedAccounts, network }
     deterministicDeployment: true,
   })
 
-  await deploy('MockValidator', {
+  await deploy('P256Verifier', {
     from: deployer,
     args: [],
     log: true,
     deterministicDeployment: true,
   })
 
-  const ad = await deploy('P256Verifier', {
-    from: deployer,
-    args: [],
-    log: true,
-    deterministicDeployment: true,
-  })
-
-  console.log('P256Verifier', ad.address)
 
 }
 
