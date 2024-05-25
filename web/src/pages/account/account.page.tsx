@@ -11,7 +11,7 @@ import Confetti from 'react-confetti';
 import { getIconForId, getTokenInfo, getTokenList, tokenList } from '@/logic/tokens';
 import { getJsonRpcProvider } from '@/logic/web3';
 
-import { getWebAuthn, sendTransaction, waitForExecution } from '@/logic/module';
+import { getWebAuthn, sendTransaction } from '@/logic/module';
 import { loadAccountInfo, storeAccountInfo } from '@/utils/storage';
 
 
@@ -19,6 +19,7 @@ import Passkey from '../../assets/icons/passkey.svg';
 import { useSearchParams } from 'react-router-dom';
 import { addWebAuthnData, create, getWebAuthnData, getWebAuthnDataByAccount, login } from '@/logic/passkey';
 import { get } from 'http';
+import { waitForExecution } from '@/logic/permissionless';
 
 
 
@@ -47,9 +48,6 @@ export const AccountPage = () => {
   const [walletProvider, setWalletProvider] = useState<any>();
   const [sessionLoading, setSessionLoading] = useState(false);
   const [sessionKeyActive, setSessionKeyActive] = useState(false);
-  const [limitAmount, setLimitAmount] = useState(''); 
-  const [availableLimit, setAvailableLimit] = useState(0);
-  const [refreshIn, setRefreshIn] = useState<bigint>(0n);
   const [error, setError ] = useState('');
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [passkeyAuth, setPasskeyAuth] = useState(false);
@@ -180,7 +178,7 @@ export const AccountPage = () => {
     setSendSuccess(true);
     setSendModal(false);
     setConfirming(true);
-    await waitForExecution(result);
+    await waitForExecution(chainId, result);
     setConfirming(false);
 
     }
@@ -222,18 +220,29 @@ export const AccountPage = () => {
   
   }
 
+  console.log(chainId)
 
   useEffect(() => {
     (async () => {
 
 
+      console.log('authDetails')
+
       const wallet = loadAccountInfo();
       const account = searchParams.get('account') || wallet.address;
-      storeAccountInfo(account);
+      const nchainId = searchParams.get('chainId') ? searchParams.get('chainId') : chainId;
 
+      storeAccountInfo(account, nchainId);
+      setChainId(nchainId);
       setAuthDetails({ account: account, chainId: chainId})
 
+    
+    })();
+  }, []);
 
+
+  useEffect(() => {
+    (async () => {
 
       if(!authDetails.account) {
         open();
@@ -253,7 +262,7 @@ export const AccountPage = () => {
       window.addEventListener('resize', () => setDimensions({ width: window.innerWidth, height: window.innerHeight }));
       
     })();
-  }, [ chainId, sendSuccess, value, confirming, sendLoader]);
+  }, [ chainId, sendSuccess, value, confirming, sendLoader, authDetails]);
 
 
   
@@ -304,14 +313,11 @@ export const AccountPage = () => {
         style={{
           marginLeft: "20px"}}
         onClick={ async() => { 
-          
 
-   
-          
         try {  
         setAuthenticating(true); 
         
-        const passkeyValidator =  await create(walletName)
+        const passkeyValidator =  await create(walletName, chainId)
 
         if(!(await getWebAuthnDataByAccount(authDetails.account)).length) {
         await addWebAuthnData(authDetails.account, await passkeyValidator.getEnableData())
@@ -364,7 +370,7 @@ export const AccountPage = () => {
         setAuthenticating(true); 
           
         try {  
-        const passkeyValidator =  await login()
+        const passkeyValidator =  await login(chainId)
 
         if(!(await getWebAuthnDataByAccount(authDetails.account)).length) {
         await addWebAuthnData(authDetails.account, await passkeyValidator.getEnableData())
@@ -435,9 +441,6 @@ export const AccountPage = () => {
 
         <div>
 
-          <Text fz="lg" fw={500} className={classes.name}>
-          {userDetails?.name}
-          </Text>
 
           <Group wrap="nowrap" gap={10} mt={3}>
           <CopyButton value={userDetails?.wallet} timeout={1000}>
@@ -756,7 +759,7 @@ export const AccountPage = () => {
             width={100}
           />
            <div className={classes.balanceContainer}>
-         <Anchor href={`${NetworkUtil.getNetworkById(chainId)?.blockExplorer}/address/${authDetails.account}`} target="_blank" underline="hover">  <p> { shortenAddress( authDetails.account ? authDetails.account : ZeroAddress)}</p>
+         <Anchor href={`${NetworkUtil.getNetworkById(Number(chainId))?.blockExplorer}/address/${authDetails.account}`} target="_blank" underline="hover">  <p> { shortenAddress( authDetails.account ? authDetails.account : ZeroAddress)}</p>
           </Anchor>
           <CopyButton value={authDetails.account} timeout={1000}>
               {({ copied, copy }) => (
@@ -780,7 +783,7 @@ export const AccountPage = () => {
                         store={chainCombobox}
                         withinPortal={false}
                         onOptionSubmit={(val) => {
-                          setChainId(Number(val));
+                          setChainId(val);
                           chainCombobox.closeDropdown();
                         }}
                       >

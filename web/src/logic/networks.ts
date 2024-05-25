@@ -55,15 +55,15 @@ export const networks = {
     api: `https://api-sepolia.etherscan.io/api?apikey=${ETHERSCAN_API_KEY}`,
     easExplorer: "",
   },
-  basegoerli: {
-    name: 'Base Goerli',
+  basesepolia: {
+    name: 'Base Sepolia',
     type: 'testnet',
-    chainId: 84531,
-    url: `https://base-goerli.g.alchemy.com/v2/K1GZzIiF6-PthdjPtfzvTOMcej2zOWWA`,
-    blockExplorer: "https://goerli.basescan.org",
-    safeService: "https://safe-transaction-base-testnet.safe.global",
-    api: `https://api-goerli.etherscan.io/api?apikey=${ETHERSCAN_API_KEY}`,
-    easExplorer: "https://base-goerli.easscan.org/attestation/view/",
+    chainId: 84532,
+    url: `https://base-sepolia.g.alchemy.com/v2/wRVILABVfp0WrfAv449B23mIW_SJqOwL`,
+    blockExplorer: "https://sepolia.basescan.org",
+    safeService: "https://safe-transaction-base-sepolia.safe.global",
+    api: `https://api-sepolia.etherscan.io/api?apikey=${ETHERSCAN_API_KEY}`,
+    easExplorer: "https://base-sepolia.easscan.org/attestation/view/",
   },
 
   base: {

@@ -10,14 +10,14 @@ import EntryPoint from "./EntryPoint.json"
 import {  publicClient } from "./utils";
 import {  buildUnsignedUserOpTransaction } from "@/utils/userOp";
 import { createClient, http, Chain, Hex, pad} from "viem";
-import { sepolia } from 'viem/chains'
 import { bundlerActions, ENTRYPOINT_ADDRESS_V07, UserOperation, getAccountNonce } from 'permissionless'
 import {  createPimlicoPaymasterClient } from "permissionless/clients/pimlico";
 import { pimlicoBundlerActions } from 'permissionless/actions/pimlico'
+import {  sendUserOperation } from "./permissionless";
 
-const safe7579Module = "0xbaCA6f74a5549368568f387FD989C279f940f1A5"
-const webAuthnModule = "0x38dF40644BbBbA37682297C1Bf5950d8070E8E57"
-
+// const safe7579Module = "0xbaCA6f74a5549368568f387FD989C279f940f1A5"
+const safe7579Module = "0x94952C0Ea317E9b8Bca613490AF25f6185623284"
+const webAuthnModule = "0x121A179013f0E6A87A22EFa23dDBbAE2c57a219c"
 
 
 export const getWebAuthn = async (chainId: string, account: string): Promise<any> => {
@@ -47,8 +47,6 @@ export const sendTransaction = async (chainId: string, recipient: string, amount
 
     const call = {target: recipient as Hex, value: amount, callData: '0x' as Hex}
 
-    console.log(call)
-
 
     const key = BigInt(pad(webAuthnModule as Hex, {
         dir: "right",
@@ -63,113 +61,27 @@ export const sendTransaction = async (chainId: string, recipient: string, amount
     })
 
 
-    let sessionOp = buildUnsignedUserOpTransaction(
+    let unsignedUserOp = buildUnsignedUserOpTransaction(
         safeAccount as Hex,
         call,
         nonce,
       )
 
+      unsignedUserOp.signature = await walletProvider.getDummySignature(unsignedUserOp);
 
-      console.log(sessionOp)
+    const userOperationHash = await sendUserOperation(chainId, unsignedUserOp, walletProvider.signUserOperation )
 
-    const entryPoint = new Contract(
-        ENTRYPOINT_ADDRESS_V07,
-        EntryPoint.abi,
-        bProvider
-    )
-
-
-    const chain = "sepolia" 
-
-
-    const pimlicoEndpoint = `https://api.pimlico.io/v2/${chain}/rpc?apikey=${import.meta.env.VITE_PIMLICO_API_KEY}`
-
-
-    const bundlerClient = createClient({
-        transport: http(pimlicoEndpoint),
-        chain: sepolia as Chain,
-    })
-        .extend(bundlerActions(ENTRYPOINT_ADDRESS_V07))
-        .extend(pimlicoBundlerActions(ENTRYPOINT_ADDRESS_V07))
-
-     const paymasterClient = createPimlicoPaymasterClient({
-        transport: http(pimlicoEndpoint),
-        entryPoint: ENTRYPOINT_ADDRESS_V07,
-    })
-    
-     
-
-
-    const gasPrice = await bundlerClient.getUserOperationGasPrice()
-
-
-    sessionOp.maxFeePerGas = gasPrice.fast.maxFeePerGas;
-    sessionOp.maxPriorityFeePerGas = gasPrice.fast.maxPriorityFeePerGas;
-
-    sessionOp.signature = await walletProvider.getDummySignature(sessionOp);
-
-
-
-    const sponsorUserOperationResult = await paymasterClient.sponsorUserOperation({
-        userOperation: sessionOp
-    })
-
-
-
-   
-    const sponsoredUserOperation: UserOperation<"v0.7"> = {
-        ...sessionOp,
-        ...sponsorUserOperationResult,
-    }
-
-
+    // const entryPoint = new Contract(
+    //     ENTRYPOINT_ADDRESS_V07,
+    //     EntryPoint.abi,
+    //     bProvider
+    // )
     // let typedDataHash = getBytes(await entryPoint.getUserOpHash(getPackedUserOperation(sponsoredUserOperation)))
-
- 
     // sponsoredUserOperation.signature = await walletClient.signMessage({account: walletProvider.address , message:  { raw: typedDataHash}}) as `0x${string}`
-
-
-    sponsoredUserOperation.signature  = await walletProvider.signUserOperation(sponsoredUserOperation)
-
-    const userOperationHash = await bundlerClient.sendUserOperation({
-        userOperation: sponsoredUserOperation,
-
-    })
 
     return userOperationHash;
 
 }
-
-
-export const waitForExecution = async (userOperationHash: string) => {
-
-
-    const chain = "sepolia" 
-
-
-    const pimlicoEndpoint = `https://api.pimlico.io/v2/${chain}/rpc?apikey=${import.meta.env.VITE_PIMLICO_API_KEY}`
-
-
-    const bundlerClient = createClient({
-        transport: http(pimlicoEndpoint),
-        chain: sepolia as Chain,
-    })
-        .extend(bundlerActions(ENTRYPOINT_ADDRESS_V07))
-        .extend(pimlicoBundlerActions(ENTRYPOINT_ADDRESS_V07))
-
-     const paymasterClient = createPimlicoPaymasterClient({
-        transport: http(pimlicoEndpoint),
-        entryPoint: ENTRYPOINT_ADDRESS_V07,
-    })
-    
-
-    const receipt = await bundlerClient.waitForUserOperationReceipt({ hash: userOperationHash as Hex })
-
-    return receipt;
-
-}
-
-
 
 
 const buildInitSafe7579 = async ( ): Promise<BaseTransaction> => {

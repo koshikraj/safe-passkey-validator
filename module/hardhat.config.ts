@@ -104,6 +104,11 @@ const userConfig: HardhatUserConfig = {
       url: `https://sepolia.infura.io/v3/${INFURA_KEY}`,
       tags: ['dev', 'entrypoint'],
     },
+    basesepolia: {
+      ...sharedNetworkConfig,
+      url: `https://base-sepolia.g.alchemy.com/v2/wRVILABVfp0WrfAv449B23mIW_SJqOwL`,
+      tags: ['dev', 'entrypoint'],
+    },
     amoy: {
       ...sharedNetworkConfig,
       url: `https://polygon-amoy.infura.io/v3/${INFURA_KEY}`,

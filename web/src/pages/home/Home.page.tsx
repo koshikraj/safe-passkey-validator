@@ -218,7 +218,7 @@ function HomePage() {
               >
               
             <p className={classes.topHeading}>
-              Add <b>PassKey</b> auth to your Safe <Anchor target='_blank' href={`/#/account?account=${safeAccount}`}><b>here </b> </Anchor>  and then click Next
+              Add <b>PassKey</b> auth to your Safe <Anchor target='_blank' href={`/#/account?account=${safeAccount}&chainId=${chainId}`}><b>here </b> </Anchor>  and then click Next
             </p>
 
 
@@ -324,7 +324,7 @@ function HomePage() {
               <div className={classes.actions}>
             
             <Button size="lg" radius="md"
-              onClick={() => window.open(`/#/account?account=${safeAccount}`)}
+              onClick={() => window.open(`/#/account?account=${safeAccount}&chainId=${chainId}`)}
              style={{ width: '180px' }}        
                 color={ dark ? "#49494f" : "#c3c3c3" } 
                 variant={ "filled" } 
