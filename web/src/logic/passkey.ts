@@ -40,6 +40,8 @@ const publicClient = createPublicClient({
 export async function create(username: string, chainId: string) {
     // Logic for passkey registration
 
+    const chain = getChain(chainId);
+    
     const pimlicoEndpoint = `https://api.pimlico.io/v2/${chain.name.toLowerCase().replace(/\s+/g, '-')}/rpc?apikey=${import.meta.env.VITE_PIMLICO_API_KEY}`;
 
 
