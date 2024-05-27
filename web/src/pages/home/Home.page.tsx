@@ -39,7 +39,7 @@ import { getProvider } from '@/logic/web3';
 import { getIconForId, getTokenInfo, getTokenList, tokenList } from '@/logic/tokens';
 
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import { getSafeInfo } from '@/logic/safeapp';
+import { getSafeInfo, isConnectedToSafe } from '@/logic/safeapp';
 import { formatTime, getTokenBalance } from '@/logic/utils';
 import { createPublicClient, formatEther, http } from 'viem';
 import { IconBrandTwitterFilled, IconBrandX } from '@tabler/icons-react';
@@ -51,6 +51,7 @@ import {
 } from "@zerodev/passkey-validator"
 import { ENTRYPOINT_ADDRESS_V07 } from 'permissionless';
 import { getWebAuthnDataByAccount } from '@/logic/passkey';
+import useLinkStore from '@/store/account/account.store';
 
 
 function HomePage() {
@@ -63,6 +64,9 @@ function HomePage() {
 
   const dark = colorScheme === 'dark';
 
+  const { chainId, setChainId} = useLinkStore((state: any) => state);
+
+
   const [tokenValue, setTokenValue] = useState('0');
   const [safeAccount, setSafeAccount] = useState('');
   const [enableData, setEnableData] = useState('');
@@ -73,8 +77,6 @@ function HomePage() {
 
   const [seletcedNetwork, setSelectedNetwork] = useState<string | null>('');
   const [network, setNetwork] = useState('');
-  const [chainId, setChainId] = useState(5);
-
   const [sessionCreated, setSessionCreated] = useState(false);
   const [sessionKey, setSessionKey] = useState({address: '', privateKey: ''});
   const [isLoading, setIsLoading] = useState(false);
@@ -142,16 +144,16 @@ function HomePage() {
  
   useEffect(() => {
     (async () => {
-      const provider = await getProvider();
-
-      const chainId = (await provider.getNetwork()).chainId;
-
-      setChainId(Number(chainId));
-      setNetwork(
-        `${NetworkUtil.getNetworkById(Number(chainId))?.name}`
-      );
-
       try {
+        const provider = await getProvider();
+
+        const chainId = (await provider.getNetwork()).chainId;
+
+        setChainId(Number(chainId));
+        setNetwork(
+          `${NetworkUtil.getNetworkById(Number(chainId))?.name}`
+        );
+
         const safeInfo = await getSafeInfo();
         const passkeyEnabled = (await getWebAuthn(chainId.toString(), safeInfo?.safeAddress))[0]!=0n
         setActive(passkeyEnabled ? 2 : 0);
@@ -165,6 +167,7 @@ function HomePage() {
         catch(e)
         {
           console.log('No safe found')
+          setSafeError(true);
         }
         
     })();
