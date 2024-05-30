@@ -1,6 +1,4 @@
 import { PublicClient, createPublicClient, http } from "viem";
-import { WebauthnStamper } from "@turnkey/webauthn-stamper";
-import { getWebAuthnAttestation, TurnkeyClient } from "@turnkey/http";
 import { PimlicoPaymasterClient, createPimlicoPaymasterClient } from "permissionless/clients/pimlico";
 import { NetworkUtil } from "./networks";
 import { ethers, formatUnits } from "ethers";
@@ -31,17 +29,6 @@ export function refineNonNull<T>(
 }
 
 
-const stamper = new WebauthnStamper({
-  rpId: process.env.NEXT_PUBLIC_RPID!,
-});
-
-
-export const passkeyHttpClient = new TurnkeyClient(
-  {
-    baseUrl: import.meta.env.VITE_TURNKEY_API_BASE_URL!,
-  },
-  stamper
-);
 
 export const publicClient = (chainId: number): PublicClient => {
 

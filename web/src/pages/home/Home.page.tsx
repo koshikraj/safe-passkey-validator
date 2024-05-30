@@ -38,11 +38,10 @@ import { useNavigate } from 'react-router-dom';
 import { getProvider } from '@/logic/web3';
 import { getIconForId, getTokenInfo, getTokenList, tokenList } from '@/logic/tokens';
 
-import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { getSafeInfo, isConnectedToSafe } from '@/logic/safeapp';
 import { formatTime, getTokenBalance } from '@/logic/utils';
 import { createPublicClient, formatEther, http } from 'viem';
-import { IconBrandTwitterFilled, IconBrandX } from '@tabler/icons-react';
+import { IconBrandTwitterFilled, IconBrandX, IconUserScan } from '@tabler/icons-react';
 import { RoutePath } from '@/navigation/route-path';
 
 import {
@@ -220,9 +219,9 @@ function HomePage() {
                 }}
               >
               
-            <p className={classes.topHeading}>
+            <Alert variant="light" color="green" title="Create a PassKey"  radius="md" icon={<IconUserScan />}>
               Add <b>PassKey</b> auth to your Safe <Anchor target='_blank' href={`/#/account?account=${safeAccount}&chainId=${chainId}`}><b>here </b> </Anchor>  and then click Next
-            </p>
+            </Alert>  
 
 
               </div>

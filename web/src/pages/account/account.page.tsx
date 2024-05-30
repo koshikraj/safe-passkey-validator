@@ -3,7 +3,7 @@ import classes from './account.module.css';
 import { useEffect, useState } from 'react';
 import useLinkStore from '@/store/account/account.store';
 import { formatEther, parseEther, parseUnits, ZeroAddress } from 'ethers';
-import { buildTransferToken, fixDecimal, formatTime, getTokenBalance, getTokenDecimals, passkeyHttpClient, publicClient } from '@/logic/utils';
+import { buildTransferToken, fixDecimal, formatTime, getTokenBalance, getTokenDecimals } from '@/logic/utils';
 import { useDisclosure } from '@mantine/hooks';
 import {  IconBug, IconCheck, IconChevronDown, IconClock, IconCoin, IconConfetti, IconCopy, IconCross, IconDownload, IconError404, IconGif, IconGift, IconHomeDown, IconSend, IconShieldCheck, IconTransferOut, IconUserCheck } from '@tabler/icons';
 import { NetworkUtil } from '@/logic/networks';

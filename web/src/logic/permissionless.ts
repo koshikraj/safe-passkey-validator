@@ -2,13 +2,6 @@ import { base, celo, gnosis, sepolia, baseGoerli, goerli, polygon, baseSepolia }
 import { http, createPublicClient, Chain, createWalletClient, SendTransactionParameters, extractChain, createClient, Hex } from "viem"
 import { createBundlerClient, createSmartAccountClient, ENTRYPOINT_ADDRESS_V07, ENTRYPOINT_ADDRESS_V06, bundlerActions, UserOperation} from 'permissionless';
 import { createPimlicoPaymasterClient, createPimlicoBundlerClient  } from "permissionless/clients/pimlico";
-import { privateKeyToSafeSmartAccount, signerToSafeSmartAccount } from "permissionless/accounts";
-import { NetworkUtil } from './networks';
-import { createAccount } from '@turnkey/viem';
-import { Contract, parseEther, ZeroAddress } from 'ethers';
-import { passkeyHttpClient, publicClient } from './utils';
-import { PackedUserOperation } from '@/utils/userOp';
-import { pimlicoBundlerActions } from 'permissionless/actions/pimlico';
 
 /**
  * Retrieves the chain object based on the given chainId.

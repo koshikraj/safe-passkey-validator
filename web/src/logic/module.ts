@@ -40,10 +40,6 @@ export const getWebAuthn = async (chainId: string, account: string): Promise<any
 
 export const sendTransaction = async (chainId: string, recipient: string, amount: bigint, walletProvider: any, safeAccount: string): Promise<any> => {
 
-    const bProvider = await getJsonRpcProvider(chainId)
-
-
-
 
     const call = {target: recipient as Hex, value: amount, callData: '0x' as Hex}
 
